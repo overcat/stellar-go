@@ -34,14 +34,12 @@ func NewS3DataStore(ctx context.Context, datastoreConfig DataStoreConfig) (DataS
 	if !ok {
 		return nil, errors.New("invalid S3 config, no destination_bucket_path")
 	}
-	endpointUrl, ok := datastoreConfig.Params["endpoint_url"]
-	if !ok {
-		return nil, errors.New("invalid S3 config, no endpoint_url")
-	}
 	region, ok := datastoreConfig.Params["region"]
 	if !ok {
 		return nil, errors.New("invalid S3 config, no region")
 	}
+	// endpoint_url is optional, if not provided it will use the default AWS S3 endpoint.
+	endpointUrl := datastoreConfig.Params["endpoint_url"]
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
@@ -49,8 +47,11 @@ func NewS3DataStore(ctx context.Context, datastoreConfig DataStoreConfig) (DataS
 	}
 
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.BaseEndpoint = aws.String(endpointUrl)
+		if endpointUrl != "" {
+			o.BaseEndpoint = aws.String(endpointUrl)
+		}
 		o.Region = region
+		o.UsePathStyle = true
 	})
 
 	return FromS3Client(ctx, client, destinationBucketPath, datastoreConfig.Schema)
