@@ -412,7 +412,11 @@ func (s *GalexieTestSuite) mustWaitForCore(t *testing.T, archiveUrls []string, p
 
 func (s *GalexieTestSuite) mustStartLocalStack(t *testing.T) {
 	t.Log("Starting LocalStack container...")
-	imageName := "localstack/localstack:latest"
+	imageTag := os.Getenv("GALEXIE_INTEGRATION_TESTS_LOCALSTACK_IMAGE_TAG")
+	if imageTag == "" {
+		imageTag = "latest"
+	}
+	imageName := "localstack/localstack:" + imageTag
 	pullImage := os.Getenv("GALEXIE_INTEGRATION_TESTS_LOCALSTACK_IMAGE_PULL") != "false"
 	if pullImage {
 		imgReader, err := s.dockerCli.ImagePull(s.ctx, imageName, image.PullOptions{})
