@@ -114,7 +114,7 @@ func (s *GalexieTestSuite) TestAppend() {
 	datastore, err := datastore.NewDataStore(s.ctx, s.config.DataStoreConfig)
 	require.NoError(err)
 
-	lastModified, err := datastore.GetFileLastModified(s.ctx, "FFFFFFFF--0-9/FFFFFFF6--9.xdr.zstd")
+	lastModified, err := datastore.GetFileLastModified(s.ctx, "FFFFFFFF--0-9/FFFFFFF9--6.xdr.zstd")
 	require.NoError(err)
 
 	// now run an append of overalapping range, it will resume past existing ledgers
@@ -132,7 +132,7 @@ func (s *GalexieTestSuite) TestAppend() {
 	s.T().Log(errOutput)
 
 	// check that the file was not modified
-	newLastModified, err := datastore.GetFileLastModified(s.ctx, "FFFFFFFF--0-9/FFFFFFF6--9.xdr.zstd")
+	newLastModified, err := datastore.GetFileLastModified(s.ctx, "FFFFFFFF--0-9/FFFFFFF9--6.xdr.zstd")
 	require.NoError(err)
 	require.Equal(lastModified, newLastModified, "file should not be modified on append of overlapping range")
 
