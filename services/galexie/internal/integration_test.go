@@ -111,6 +111,12 @@ func (s *GalexieTestSuite) TestAppend() {
 	err := rootCmd.ExecuteContext(s.ctx)
 	require.NoError(err)
 
+	datastore, err := datastore.NewDataStore(s.ctx, s.config.DataStoreConfig)
+	require.NoError(err)
+
+	lastModified, err := datastore.GetFileLastModified(s.ctx, "FFFFFFFF--0-9/FFFFFFF6--9.xdr.zstd")
+	require.NoError(err)
+
 	// now run an append of overalapping range, it will resume past existing ledgers
 	rootCmd.SetArgs([]string{"append", "--start", "6", "--end", "9", "--config-file", s.tempConfigFile})
 	var errWriter bytes.Buffer
@@ -125,8 +131,10 @@ func (s *GalexieTestSuite) TestAppend() {
 	s.T().Log(output)
 	s.T().Log(errOutput)
 
-	datastore, err := datastore.NewDataStore(s.ctx, s.config.DataStoreConfig)
+	// check that the file was not modified
+	newLastModified, err := datastore.GetFileLastModified(s.ctx, "FFFFFFFF--0-9/FFFFFFF6--9.xdr.zstd")
 	require.NoError(err)
+	require.Equal(lastModified, newLastModified, "file should not be modified on append of overlapping range")
 
 	_, err = datastore.GetFile(s.ctx, "FFFFFFFF--0-9/FFFFFFF6--9.xdr.zstd")
 	require.NoError(err)
