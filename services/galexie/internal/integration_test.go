@@ -105,7 +105,7 @@ func (s *GalexieTestSuite) TestScanAndFill() {
 func (s *GalexieTestSuite) TestAppend() {
 	require := s.Require()
 
-	// first populate ledgers 4-5
+	// first populate ledgers 6-7
 	rootCmd := defineCommands()
 	rootCmd.SetArgs([]string{"scan-and-fill", "--start", "6", "--end", "7", "--config-file", s.tempConfigFile})
 	err := rootCmd.ExecuteContext(s.ctx)
