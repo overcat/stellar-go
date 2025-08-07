@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/fsouza/fake-gcs-server/fakestorage"
+
 	"github.com/stellar/go/historyarchive"
 	"github.com/stellar/go/support/datastore"
 	"github.com/stellar/go/support/storage"
@@ -100,6 +101,28 @@ func (s *GalexieTestSuite) TestScanAndFill() {
 
 	_, err = datastore.GetFile(s.ctx, "FFFFFFFF--0-9/FFFFFFFA--5.xdr.zstd")
 	require.NoError(err)
+
+	lastModified, err := datastore.GetFileLastModified(s.ctx, "FFFFFFFF--0-9/FFFFFFFA--5.xdr.zstd")
+	require.NoError(err)
+
+	// now run an scan-and-fill on an overlapping range, it will skip over existing ledgers
+	rootCmd.SetArgs([]string{"scan-and-fill", "--start", "4", "--end", "9", "--config-file", s.tempConfigFile})
+	errWriter.Reset()
+	rootCmd.SetErr(&errWriter)
+	outWriter.Reset()
+	rootCmd.SetOut(&outWriter)
+	err = rootCmd.ExecuteContext(s.ctx)
+	require.NoError(err)
+
+	s.T().Log(outWriter.String())
+	s.T().Log(errWriter.String())
+
+	newLastModified, err := datastore.GetFileLastModified(s.ctx, "FFFFFFFF--0-9/FFFFFFFA--5.xdr.zstd")
+	require.NoError(err)
+	require.Equal(lastModified, newLastModified)
+
+	_, err = datastore.GetFile(s.ctx, "FFFFFFFF--0-9/FFFFFFF6--9.xdr.zstd")
+	require.NoError(err)
 }
 
 func (s *GalexieTestSuite) TestAppend() {
@@ -117,7 +140,7 @@ func (s *GalexieTestSuite) TestAppend() {
 	lastModified, err := datastore.GetFileLastModified(s.ctx, "FFFFFFFF--0-9/FFFFFFF9--6.xdr.zstd")
 	require.NoError(err)
 
-	// now run an append of overalapping range, it will resume past existing ledgers
+	// now run an append on an overlapping range, it will resume past existing ledgers
 	rootCmd.SetArgs([]string{"append", "--start", "6", "--end", "9", "--config-file", s.tempConfigFile})
 	var errWriter bytes.Buffer
 	var outWriter bytes.Buffer
