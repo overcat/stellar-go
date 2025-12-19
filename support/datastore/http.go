@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stellar/go/support/log"
+	"github.com/stellar/go-stellar-sdk/support/log"
 )
 
 // HTTPDataStore implements DataStore for HTTP(S) endpoints.
@@ -235,7 +235,7 @@ func (h *HTTPDataStore) Size(ctx context.Context, filePath string) (int64, error
 }
 
 // ListFilePaths is not supported for HTTP datastore.
-func (h *HTTPDataStore) ListFilePaths(ctx context.Context, prefix string, limit int) ([]string, error) {
+func (h *HTTPDataStore) ListFilePaths(ctx context.Context, options ListFileOptions) ([]string, error) {
 	return nil, errors.New("HTTP datastore does not support listing files")
 }
 

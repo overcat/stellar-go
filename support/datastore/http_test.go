@@ -360,7 +360,7 @@ func TestHTTPDataStore_ReadOnlyOperations(t *testing.T) {
 	})
 
 	t.Run("ListFilePaths not supported", func(t *testing.T) {
-		_, err := ds.ListFilePaths(context.Background(), "", 10)
+		_, err := ds.ListFilePaths(context.Background(), ListFileOptions{Prefix: "", Limit: 10})
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "does not support listing")
 	})
