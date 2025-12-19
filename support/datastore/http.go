@@ -23,6 +23,31 @@ type HTTPDataStore struct {
 	headers map[string]string
 }
 
+// NewHTTPDataStore creates a new HTTP-based DataStore for read-only access to files.
+//
+// The datastoreConfig.Params map supports the following keys:
+//
+//   - "base_url" (required): The base HTTP or HTTPS URL for the datastore.
+//     Must include the scheme (http:// or https://) and will have a trailing
+//     slash appended if not present.
+//
+//   - "timeout" (optional): HTTP client timeout as a duration string (e.g., "30s", "1m").
+//     Defaults to 30 seconds if not specified. Parsed using time.ParseDuration.
+//
+//   - "header_<name>" (optional): Custom HTTP headers to include in all requests.
+//     The header name is derived by stripping the "header_" prefix from the key.
+//     For example, "header_Authorization" sets the "Authorization" header.
+//
+// Example TOML configuration:
+//
+//	[datastore]
+//	type = "HTTP"
+//
+//	[datastore.params]
+//	base_url = "https://example.com/data/"
+//	timeout = "60s"
+//	header_Authorization = "Bearer token123"
+//	header_X-Custom-Header = "custom-value"
 func NewHTTPDataStore(datastoreConfig DataStoreConfig) (DataStore, error) {
 	baseURL, ok := datastoreConfig.Params["base_url"]
 	if !ok {
